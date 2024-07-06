@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+</head>
+<body>
+    <div class="container-sm mx-auto my-5" style="max-width: 450px;">
+        <h1>Задача 2</h1>
+        <p class="py-2">
+            Введите количество групп   
+        </p>
+        <div class="container-sm">
+            <div class="input-group input-group-lg mx-auto">
+                <div class="mx-auto">
+                    <input id="groupAmount" type="number" class="form-control" style="width: 100px;" value="1" min="1" max="100" required autofocus>
+                </div>
+            </div>
+        </div>
+        <p class="py-2">
+            Введите составы групп
+        </p>
+        <div class="container-sm">
+            <div class="input-group input-group-lg mx-auto" id="inputGroup">
+                <div class="mx-auto my-2" style="width: 18%;">
+                    <input type="number" class="form-control" min="1" max="4" onfocus="this.value = this.value;" required>
+                </div>
+            </div>
+        </div>
+        <div class="py-4">
+            <button id="makeSolution" type="submit" class="btn btn-primary w-100">Submit</button>
+        </div>
+        <div id="solutionRow" style="display: none;">
+            <p>
+                Минимальное количество машин: <span id="solution"></span>
+            </p>
+        </div>
+    </div>
+    <template id="inputRow">
+        <div class="mx-auto my-2" style="width: 18%;">
+            <input type="number" class="form-control" min="1" max="4" onfocus="this.value = this.value;" required>
+        </div>
+    </template>
+    <script>
+        const groupAmount   = document.getElementById('groupAmount');
+        const inputGroup    = document.getElementById('inputGroup');
+        const templateInput = document.getElementById('inputRow');
+        const solutoinButton   = document.getElementById('makeSolution');
+
+        const refreshEventListener = () => {
+            const inputGroupArr = inputGroup.querySelectorAll('input');
+
+            inputGroupArr.forEach((input, index) => {
+                input.addEventListener('input', () => {
+                    if (input.value.length > 1) input.value = input.value.slice(1,2);
+                    if (input.value < 1) input.value = 1;
+                    if (input.value > 4) input.value = 4;
+
+                    if (input.value.length === 1) {
+                        if (index + 1 == inputGroupArr.length) makeSolution.focus();
+                        else inputGroupArr[index + 1].focus();
+                    }
+                });
+            });
+        }   
+
+        groupAmount.addEventListener('input', () => {
+            if (groupAmount.value.length > 3) groupAmount.value = groupAmount.value.slice(3,4);
+            if (groupAmount.value < 1) groupAmount.value = 1;
+            if (groupAmount.value > 100) groupAmount.value = 100;
+
+            const inputGroupArr = inputGroup.querySelectorAll('input');
+            
+            let inputLength  = inputGroupArr.length;
+            let targetLength = groupAmount.value;
+            
+            if (inputLength > targetLength) {
+                for (let index = inputLength; index > targetLength; index--) {
+                
+                    const child = inputGroupArr[index - 1];
+
+                    inputGroup.removeChild(child.parentNode);
+                }
+            }
+
+            if (inputLength < targetLength) {
+                for (let index = inputLength; index < targetLength; index++) {
+                    const cloneFirst = templateInput.content.cloneNode(true);
+                    inputGroup.appendChild(cloneFirst);   
+                }
+            }
+
+            refreshEventListener();
+        })
+
+        // Решение
+        solutoinButton.onclick = () => {
+            const inputGroupArr = inputGroup.querySelectorAll('input');
+            
+            let countArr = [0,0,0,0];
+            let sum = 0;
+            inputGroupArr.forEach((input, index) => {
+                countArr[input.value - 1]++;
+            });
+            
+            sum = countArr[3];
+console.log(countArr);
+            if (countArr[2] >= countArr[0]) {
+                sum += countArr[0];
+                sum += countArr[2] - countArr[0];
+                sum += Math.ceil(countArr[1]/2);
+            } else {
+                sum += countArr[2];
+                countArr[0]-=countArr[2];
+                sum += Math.ceil((countArr[1] * 2 + countArr[0])/4);
+            }
+
+            console.log(`Минимальное количество машин: ${sum}`);
+            solution.innerText = sum;
+            solutionRow.style.display = 'block';
+        }
+
+        refreshEventListener();
+  </script>
+</body>
+</html>
